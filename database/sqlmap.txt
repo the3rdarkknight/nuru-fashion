@@ -1,0 +1,88 @@
+-- Nuru Fashion — Database Schema
+-- Import this file into MySQL to set up the store.
+-- Example: mysql -u root -p < schema.sql
+
+CREATE DATABASE IF NOT EXISTS nuru_fashion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE nuru_fashion;
+
+-- ---------------------------------------------------------
+-- Categories
+-- ---------------------------------------------------------
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    image VARCHAR(255) DEFAULT NULL,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ---------------------------------------------------------
+-- Products
+-- discount_percent + discount_start + discount_end together
+-- drive the "daily deals" feature. An admin can set a discount
+-- that only applies for a chosen date range (even a single day),
+-- and the storefront automatically shows/hides it based on today's date.
+-- ---------------------------------------------------------
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category_id INT NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(150) NOT NULL UNIQUE,
+    description TEXT,
+    base_price DECIMAL(10,2) NOT NULL,
+    discount_percent DECIMAL(5,2) DEFAULT 0,
+    discount_start DATE DEFAULT NULL,
+    discount_end DATE DEFAULT NULL,
+    sizes VARCHAR(100) DEFAULT NULL,      -- e.g. "S,M,L,XL"
+    colors VARCHAR(150) DEFAULT NULL,     -- e.g. "Red,Black,Navy"
+    image VARCHAR(255) DEFAULT NULL,
+    stock_status ENUM('in_stock','low_stock','out_of_stock') DEFAULT 'in_stock',
+    is_featured TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+
+-- ---------------------------------------------------------
+-- Admin users (for the admin panel)
+-- Default login created below: username "admin", password "nuru2026"
+-- CHANGE THIS PASSWORD after first login.
+-- ---------------------------------------------------------
+CREATE TABLE admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- password_hash below is bcrypt for "nuru2026"
+INSERT INTO admin_users (username, password_hash) VALUES
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+-- ---------------------------------------------------------
+-- Sample categories
+-- ---------------------------------------------------------
+INSERT INTO categories (name, slug, sort_order) VALUES
+('Dresses', 'dresses', 1),
+('Tops & Blouses', 'tops-blouses', 2),
+('Bottoms', 'bottoms', 3),
+('Two-Piece Sets', 'sets', 4),
+('Shoes', 'shoes', 5),
+('Bags & Accessories', 'accessories', 6),
+('Men', 'men', 7);
+
+-- ---------------------------------------------------------
+-- Sample products (prices in KES)
+-- ---------------------------------------------------------
+INSERT INTO products (category_id, name, slug, description, base_price, discount_percent, discount_start, discount_end, sizes, colors, stock_status, is_featured) VALUES
+(1, 'Amara Wrap Dress', 'amara-wrap-dress', 'A flowing wrap dress cut from soft crepe. Ties at the waist, falls just below the knee — easy to dress up or down.', 3200.00, 20, CURDATE(), CURDATE(), 'S,M,L,XL', 'Emerald,Wine,Black', 'in_stock', 1),
+(1, 'Zawadi Ankara Midi', 'zawadi-ankara-midi', 'Bold Ankara print midi dress with a fitted bodice and flared skirt. Fully lined.', 4500.00, 0, NULL, NULL, 'S,M,L', 'Multicolor', 'in_stock', 1),
+(2, 'Halima Satin Blouse', 'halima-satin-blouse', 'Liquid satin blouse with a relaxed collar. Pairs well with tailored trousers or denim.', 2100.00, 15, CURDATE(), CURDATE(), 'S,M,L,XL', 'Champagne,Black,Ruby', 'in_stock', 0),
+(2, 'Neema Puff Sleeve Top', 'neema-puff-sleeve-top', 'Cotton-poplin top with statement puff sleeves and a tie-neck detail.', 1800.00, 0, NULL, NULL, 'S,M,L', 'White,Sky Blue', 'in_stock', 0),
+(3, 'Sanaa High-Waist Trousers', 'sanaa-high-waist-trousers', 'Wide-leg tailored trousers with a high waist and side pockets.', 2600.00, 0, NULL, NULL, 'S,M,L,XL', 'Black,Camel', 'in_stock', 0),
+(3, 'Furaha Denim Skirt', 'furaha-denim-skirt', 'A-line denim mini skirt with raw hem detail.', 1900.00, 10, CURDATE(), CURDATE(), 'S,M,L', 'Light Wash,Dark Wash', 'low_stock', 0),
+(4, 'Imani Co-ord Set', 'imani-co-ord-set', 'Matching crop top and wide-leg trouser set in ribbed jersey.', 3800.00, 25, CURDATE(), CURDATE(), 'S,M,L', 'Sage,Terracotta,Black', 'in_stock', 1),
+(5, 'Tumaini Block Heels', 'tumaini-block-heels', 'Comfortable 3-inch block heels with an ankle strap.', 3500.00, 0, NULL, NULL, '37,38,39,40,41', 'Nude,Black', 'in_stock', 0),
+(6, 'Asha Woven Tote', 'asha-woven-tote', 'Hand-woven raffia tote with leather trim, roomy enough for daily use.', 2400.00, 0, NULL, NULL, 'One Size', 'Natural,Black', 'in_stock', 0),
+(7, 'Jabari Linen Shirt', 'jabari-linen-shirt', 'Breathable linen-blend shirt, relaxed fit, perfect for warm days.', 2300.00, 0, NULL, NULL, 'S,M,L,XL', 'White,Sand,Navy', 'in_stock', 0);
