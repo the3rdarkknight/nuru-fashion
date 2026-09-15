@@ -17,7 +17,7 @@ define('CURRENCY_SYMBOL', 'KES');
 // WhatsApp number that "Order via WhatsApp" buttons message.
 // Use the full international format with NO plus sign, spaces or dashes.
 // Example: Kenyan number 0712 345 678 -> 254712345678
-define('WHATSAPP_NUMBER', '254700000000');
+define('WHATSAPP_NUMBER', '+254799417993');
 
 // Base URL of the site (used for building image/share links). No trailing slash.
 define('SITE_URL', 'http://localhost/nuru-fashion');
